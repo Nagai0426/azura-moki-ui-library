@@ -15,23 +15,40 @@ Azura Moki is a professional, lightweight, and modern Luau UI library inspired b
 
 ## Usage Example
 
-You can load the library in your Roblox script using a hosted `loadstring`:
-
 ```lua
-local Library = loadstring(game:HttpGet("https://rbx-loadsrtibg.netlify.app/raw/Eey6gyiO"))()
+-- Load your Azura Moki Library from GitHub
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Nagai0426/azura-moki-ui-library/main/Library.lua"))()
 
+-- Initialize Window
 local Window = Library.new("Azura Moki Hub")
 
+-- Home / Welcome Tab
 local HomeTab = Window:AddTab("Home")
 HomeTab:AddWelcomeCard()
 HomeTab:AddDashboardStats()
 
+-- Scripts / Utilities Tab
 local ScriptsTab = Window:AddTab("Scripts")
+ScriptsTab:AddLabel("Player & Server Tools")
 ScriptsTab:AddUsableScripts()
 
+-- Settings Tab
 local SettingsTab = Window:AddTab("Settings")
-SettingsTab:AddButton("Scale 100%", function()
-    Window:SetScale(1.00)
+SettingsTab:AddLabel("GUI Scale Settings")
+SettingsTab:AddButton("Scale 25% (Small)", function() Window:SetScale(0.25) end)
+SettingsTab:AddButton("Scale 50% (Medium)", function() Window:SetScale(0.50) end)
+SettingsTab:AddButton("Scale 75% (Large)", function() Window:SetScale(0.75) end)
+SettingsTab:AddButton("Scale 100% (Normal)", function() Window:SetScale(1.00) end)
+
+SettingsTab:AddSlider("Custom Scale %", 25, 150, 100, function(value)
+    Window:SetScale(value / 100)
+end)
+
+SettingsTab:AddLabel("Interface Control")
+SettingsTab:AddButton("Destroy UI", function()
+    if Window.ScreenGui then
+        Window.ScreenGui:Destroy()
+    end
 end)
 ```
 
