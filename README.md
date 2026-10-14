@@ -57,6 +57,73 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Nagai
 
 > This URL points to the published `Library.lua` file in this repository.
 
+## Creating Custom Tabs and Buttons
+
+Create a custom tab with `Window:AddTab("Tab Name")`. The method returns a tab object where you can add controls in the order they should appear.
+
+### Custom tab with buttons
+
+```lua
+local ToolsTab = Window:AddTab("Tools")
+
+ToolsTab:AddLabel("My Custom Actions")
+
+ToolsTab:AddButton("Print Greeting", function()
+    print("Hello from Azura Moki!")
+end)
+
+ToolsTab:AddButton("Set Normal Scale", function()
+    Window:SetScale(1.00)
+end)
+```
+
+`AddButton(text, callback)` creates a button and runs the callback when the player activates it. Keep the callback focused on one action, and wrap optional or external operations in `pcall` when appropriate.
+
+### Other controls on a custom tab
+
+```lua
+local CustomTab = Window:AddTab("Custom")
+
+CustomTab:AddLabel("Player Preferences")
+
+CustomTab:AddSlider("Transparency", 0, 100, 25, function(value)
+    print("Selected transparency:", value)
+end)
+
+CustomTab:AddTextBox("Enter a note", function(text)
+    print("Player note:", text)
+end)
+```
+
+Available tab methods are:
+
+- `AddLabel(text)` — adds a section label.
+- `AddButton(text, callback)` — adds a clickable button.
+- `AddSlider(text, minimum, maximum, default, callback)` — adds a numeric slider.
+- `AddTextBox(placeholder, callback)` — calls the callback when the player submits text.
+- `AddWelcomeCard()` — adds the personalized welcome card.
+- `AddDashboardStats()` — adds the live time, device, battery, FPS, and ping display.
+- `AddUsableScripts()` — adds the built-in server and player utility controls.
+
+### Recommended structure
+
+```lua
+local Window = Library.new("My Roblox Tool")
+
+local MainTab = Window:AddTab("Main")
+MainTab:AddLabel("Main Actions")
+MainTab:AddButton("Run Action", function()
+    print("Action triggered")
+end)
+
+local SettingsTab = Window:AddTab("Settings")
+SettingsTab:AddButton("Small UI", function()
+    Window:SetScale(0.75)
+end)
+```
+
+The first tab is displayed automatically. Additional tabs appear in the top navigation bar, and the player can select them at runtime.
+
 ## Repository
 
 This is the public GitHub repository for the project:
