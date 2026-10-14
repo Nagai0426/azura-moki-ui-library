@@ -37,13 +37,13 @@ end)
 
 ### GitHub Raw Loadstring
 
-After `Library.lua` has been added to the `main` branch, you can load the file directly from GitHub with:
+Load the library directly from the public `main` branch with:
 
 ```lua
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Nagai0426/azura-moki-ui-library/main/Library.lua"))()
 ```
 
-> The GitHub raw loadstring will work once `Library.lua` is committed to the repository.
+> This URL points to the published `Library.lua` file in this repository.
 
 ## Repository
 
@@ -54,15 +54,5 @@ This is the public GitHub repository for the project:
 ## License
 
 Azura Moki UI Library is released under the [MIT License](LICENSE). Anyone may use, modify, publish, and distribute the library in accordance with the license terms.
-
-## Upload Plan
-
-To add the library source to GitHub:
-
-1. Sign in to your official GitHub account.
-2. Open the [Azura Moki UI Library repository](https://github.com/Nagai0426/azura-moki-ui-library).
-3. Upload `Library.lua` to the repository.
-4. Review the changes and use a commit message such as `Initial release of Azura Moki Library`.
-5. Commit the changes to the `main` branch.
 
 The repository is already public, so the library and its documentation can be viewed by anyone.
