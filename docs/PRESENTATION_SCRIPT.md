@@ -82,6 +82,26 @@ Say:
 
 “Buttons are useful for one-step actions. Sliders are useful for numeric settings such as scale, volume, or sensitivity. Text boxes are useful when developers need player input.”
 
+## Demonstrate dark and light themes — 60 seconds
+
+Show this code:
+
+```lua
+Window:SetTheme("Light")
+
+Window:SetTheme({
+    Accent = Color3.fromRGB(120, 80, 255),
+    AccentText = Color3.fromRGB(255, 255, 255),
+})
+
+local themeName, palette = Window:GetTheme()
+print("Active theme:", themeName)
+```
+
+Say:
+
+“Azura Moki includes dark and light presets, and the same API accepts a partial custom palette. Semantic tokens keep the visual system consistent while allowing each experience to establish its own accent color.”
+
 ## Demonstrate scaling and cleanup — 45 seconds
 
 Show this code:

@@ -8,9 +8,77 @@ local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
 
+Library.Themes = {
+    Dark = {
+        Window = Color3.fromRGB(14, 14, 20),
+        Surface = Color3.fromRGB(20, 20, 28),
+        SurfaceAlt = Color3.fromRGB(35, 35, 48),
+        Input = Color3.fromRGB(10, 10, 15),
+        Text = Color3.fromRGB(245, 245, 250),
+        MutedText = Color3.fromRGB(150, 150, 170),
+        Border = Color3.fromRGB(55, 55, 75),
+        Accent = Color3.fromRGB(0, 122, 255),
+        AccentText = Color3.fromRGB(255, 255, 255),
+        Track = Color3.fromRGB(35, 35, 50),
+        Destructive = Color3.fromRGB(255, 59, 48),
+        Warning = Color3.fromRGB(255, 149, 0),
+    },
+    Light = {
+        Window = Color3.fromRGB(245, 247, 250),
+        Surface = Color3.fromRGB(255, 255, 255),
+        SurfaceAlt = Color3.fromRGB(235, 238, 244),
+        Input = Color3.fromRGB(248, 249, 252),
+        Text = Color3.fromRGB(25, 28, 35),
+        MutedText = Color3.fromRGB(90, 98, 112),
+        Border = Color3.fromRGB(205, 211, 222),
+        Accent = Color3.fromRGB(0, 122, 255),
+        AccentText = Color3.fromRGB(255, 255, 255),
+        Track = Color3.fromRGB(205, 211, 222),
+        Destructive = Color3.fromRGB(210, 45, 40),
+        Warning = Color3.fromRGB(220, 115, 0),
+    },
+}
+
 function Library.new(titleText)
     local self = {}
     self.Tabs = {}
+    self.ThemeName = "Dark"
+    self.Theme = Library.Themes.Dark
+    self._themeBindings = {}
+
+    local function bindTheme(instance, property, token)
+        table.insert(self._themeBindings, {Instance = instance, Property = property, Token = token})
+        instance[property] = self.Theme[token]
+    end
+
+    local function applyTheme()
+        for _, binding in ipairs(self._themeBindings) do
+            if binding.Instance and binding.Instance.Parent then
+                binding.Instance[binding.Property] = self.Theme[binding.Token]
+            end
+        end
+    end
+
+    function self:SetTheme(theme)
+        local selected = theme
+        local themeName = "Custom"
+        if type(theme) == "string" then
+            selected = Library.Themes[theme]
+            themeName = theme
+        end
+        assert(type(selected) == "table", "SetTheme expects 'Dark', 'Light', or a theme table")
+        local merged = {}
+        for key, value in pairs(self.Theme) do merged[key] = value end
+        for key, value in pairs(selected) do merged[key] = value end
+        self.Theme = merged
+        self.ThemeName = themeName
+        applyTheme()
+        return self
+    end
+
+    function self:GetTheme()
+        return self.ThemeName, self.Theme
+    end
 
     local function getGuiParent()
         if gethui then return gethui()
@@ -40,7 +108,7 @@ function Library.new(titleText)
     MainFrame.Name = "MainFrame"
     MainFrame.Size = UDim2.new(0, 500, 0, 390)
     MainFrame.Position = UDim2.new(0.5, -250, 0.4, -195)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(14, 14, 20)
+    bindTheme(MainFrame, "BackgroundColor3", "Window")
     MainFrame.BackgroundTransparency = 0.12
     MainFrame.ClipsDescendants = true
     MainFrame.Parent = ScreenGui
@@ -51,7 +119,7 @@ function Library.new(titleText)
 
     local MainStroke = Instance.new("UIStroke")
     MainStroke.Thickness = 1.2
-    MainStroke.Color = Color3.fromRGB(55, 55, 75)
+    bindTheme(MainStroke, "Color", "Border")
     MainStroke.Transparency = 0.2
     MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     MainStroke.Parent = MainFrame
@@ -66,7 +134,7 @@ function Library.new(titleText)
     Title.Position = UDim2.new(0, 16, 0, 0)
     Title.BackgroundTransparency = 1
     Title.Text = "Azura Moki"
-    Title.TextColor3 = Color3.fromRGB(245, 245, 250)
+    bindTheme(Title, "TextColor3", "Text")
     Title.TextSize = 13
     Title.Font = Enum.Font.GothamBold
     Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -75,10 +143,10 @@ function Library.new(titleText)
     local MinimizeBtn = Instance.new("TextButton")
     MinimizeBtn.Size = UDim2.new(0, 24, 0, 24)
     MinimizeBtn.Position = UDim2.new(1, -34, 0.5, -12)
-    MinimizeBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 48)
+    bindTheme(MinimizeBtn, "BackgroundColor3", "SurfaceAlt")
     MinimizeBtn.BackgroundTransparency = 0.3
     MinimizeBtn.Text = "−"
-    MinimizeBtn.TextColor3 = Color3.fromRGB(210, 210, 225)
+    bindTheme(MinimizeBtn, "TextColor3", "Text")
     MinimizeBtn.TextSize = 15
     MinimizeBtn.Font = Enum.Font.GothamBold
     MinimizeBtn.AutoButtonColor = false
@@ -91,7 +159,7 @@ function Library.new(titleText)
     local TopBarContainer = Instance.new("ScrollingFrame")
     TopBarContainer.Size = UDim2.new(1, -16, 0, 32)
     TopBarContainer.Position = UDim2.new(0, 8, 0, 42)
-    TopBarContainer.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+    bindTheme(TopBarContainer, "BackgroundColor3", "Input")
     TopBarContainer.BackgroundTransparency = 0.5
     TopBarContainer.BorderSizePixel = 0
     TopBarContainer.CanvasSize = UDim2.new(2, 0, 0, 0)
@@ -113,10 +181,10 @@ function Library.new(titleText)
     local MiniPill = Instance.new("TextButton")
     MiniPill.Size = UDim2.new(0, 110, 0, 30)
     MiniPill.Position = UDim2.new(0.5, -55, 0, 10)
-    MiniPill.BackgroundColor3 = Color3.fromRGB(14, 14, 20)
+    bindTheme(MiniPill, "BackgroundColor3", "Window")
     MiniPill.BackgroundTransparency = 0.15
     MiniPill.Text = "Azura"
-    MiniPill.TextColor3 = Color3.fromRGB(255, 255, 255)
+    bindTheme(MiniPill, "TextColor3", "Text")
     MiniPill.TextSize = 11
     MiniPill.Font = Enum.Font.GothamBold
     MiniPill.Visible = false
@@ -128,7 +196,7 @@ function Library.new(titleText)
 
     local PillStroke = Instance.new("UIStroke")
     PillStroke.Thickness = 1.2
-    PillStroke.Color = Color3.fromRGB(60, 60, 85)
+    bindTheme(PillStroke, "Color", "Border")
     PillStroke.Transparency = 0.3
     PillStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     PillStroke.Parent = MiniPill
@@ -203,10 +271,10 @@ function Library.new(titleText)
 
         local TabBtn = Instance.new("TextButton")
         TabBtn.Size = UDim2.new(0, 95, 1, 0)
-        TabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+        bindTheme(TabBtn, "BackgroundColor3", "SurfaceAlt")
         TabBtn.BackgroundTransparency = 0.2
         TabBtn.Text = tabName
-        TabBtn.TextColor3 = Color3.fromRGB(150, 150, 170)
+        bindTheme(TabBtn, "TextColor3", "MutedText")
         TabBtn.TextSize = 10.5
         TabBtn.Font = Enum.Font.GothamMedium
         TabBtn.AutoButtonColor = false
@@ -219,21 +287,21 @@ function Library.new(titleText)
         TabBtn.MouseButton1Click:Connect(function()
             for _, t in pairs(self.Tabs) do
                 t.Page.Visible = false
-                t.Btn.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+                t.Btn.BackgroundColor3 = self.Theme.SurfaceAlt
                 t.Btn.BackgroundTransparency = 0.2
-                t.Btn.TextColor3 = Color3.fromRGB(150, 150, 170)
+                t.Btn.TextColor3 = self.Theme.MutedText
             end
             Page.Visible = true
-            TabBtn.BackgroundColor3 = Color3.fromRGB(0, 122, 255)
+            TabBtn.BackgroundColor3 = self.Theme.Accent
             TabBtn.BackgroundTransparency = 0
-            TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            TabBtn.TextColor3 = self.Theme.AccentText
         end)
 
         if #self.Tabs == 0 then
             Page.Visible = true
-            TabBtn.BackgroundColor3 = Color3.fromRGB(0, 122, 255)
+            TabBtn.BackgroundColor3 = self.Theme.Accent
             TabBtn.BackgroundTransparency = 0
-            TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            TabBtn.TextColor3 = self.Theme.AccentText
         end
 
         table.insert(self.Tabs, {Page = Page, Btn = TabBtn})
@@ -241,7 +309,7 @@ function Library.new(titleText)
         function tabObj:AddWelcomeCard()
             local Card = Instance.new("Frame")
             Card.Size = UDim2.new(1, 0, 0, 70)
-            Card.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+            bindTheme(Card, "BackgroundColor3", "Surface")
             Card.BackgroundTransparency = 0.25
             Card.Parent = Page
 
@@ -265,7 +333,7 @@ function Library.new(titleText)
             WelcomeText.Position = UDim2.new(0, 70, 0, 14)
             WelcomeText.BackgroundTransparency = 1
             WelcomeText.Text = "Welcome, " .. LocalPlayer.Name .. "!"
-            WelcomeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+            bindTheme(WelcomeText, "TextColor3", "Text")
             WelcomeText.TextSize = 12.5
             WelcomeText.Font = Enum.Font.GothamBold
             WelcomeText.TextXAlignment = Enum.TextXAlignment.Left
@@ -276,7 +344,7 @@ function Library.new(titleText)
             SubText.Position = UDim2.new(0, 70, 0, 34)
             SubText.BackgroundTransparency = 1
             SubText.Text = "Azura Moki Engine Active ⚡"
-            SubText.TextColor3 = Color3.fromRGB(0, 198, 255)
+            bindTheme(SubText, "TextColor3", "Accent")
             SubText.TextSize = 9.5
             SubText.Font = Enum.Font.GothamMedium
             SubText.TextXAlignment = Enum.TextXAlignment.Left
@@ -286,7 +354,7 @@ function Library.new(titleText)
         function tabObj:AddDashboardStats()
             local StatsFrame = Instance.new("Frame")
             StatsFrame.Size = UDim2.new(1, 0, 0, 130)
-            StatsFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+            bindTheme(StatsFrame, "BackgroundColor3", "Surface")
             StatsFrame.BackgroundTransparency = 0.25
             StatsFrame.Parent = Page
 
@@ -298,7 +366,7 @@ function Library.new(titleText)
             InfoLabel.Size = UDim2.new(1, -16, 1, -36)
             InfoLabel.Position = UDim2.new(0, 8, 0, 4)
             InfoLabel.BackgroundTransparency = 1
-            InfoLabel.TextColor3 = Color3.fromRGB(200, 200, 215)
+            bindTheme(InfoLabel, "TextColor3", "Text")
             InfoLabel.TextSize = 10.5
             InfoLabel.Font = Enum.Font.Gotham
             InfoLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -308,9 +376,9 @@ function Library.new(titleText)
             local CopyBtn = Instance.new("TextButton")
             CopyBtn.Size = UDim2.new(1, -16, 0, 28)
             CopyBtn.Position = UDim2.new(0, 8, 1, -32)
-            CopyBtn.BackgroundColor3 = Color3.fromRGB(0, 122, 255)
+            bindTheme(CopyBtn, "BackgroundColor3", "Accent")
             CopyBtn.Text = "Copy Info to Clipboard"
-            CopyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            bindTheme(CopyBtn, "TextColor3", "AccentText")
             CopyBtn.TextSize = 10.5
             CopyBtn.Font = Enum.Font.GothamBold
             CopyBtn.AutoButtonColor = false
@@ -351,9 +419,9 @@ function Library.new(titleText)
         function tabObj:AddUsableScripts()
             local RejoinBtn = Instance.new("TextButton")
             RejoinBtn.Size = UDim2.new(1, 0, 0, 34)
-            RejoinBtn.BackgroundColor3 = Color3.fromRGB(0, 122, 255)
+            bindTheme(RejoinBtn, "BackgroundColor3", "Accent")
             RejoinBtn.Text = "Rejoin Server"
-            RejoinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            bindTheme(RejoinBtn, "TextColor3", "AccentText")
             RejoinBtn.TextSize = 10.5
             RejoinBtn.Font = Enum.Font.GothamMedium
             RejoinBtn.AutoButtonColor = false
@@ -369,11 +437,11 @@ function Library.new(titleText)
 
             local SearchBox = Instance.new("TextBox")
             SearchBox.Size = UDim2.new(1, 0, 0, 34)
-            SearchBox.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+            bindTheme(SearchBox, "BackgroundColor3", "Input")
             SearchBox.BackgroundTransparency = 0.25
             SearchBox.PlaceholderText = "Type Player Name..."
             SearchBox.Text = ""
-            SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+            bindTheme(SearchBox, "TextColor3", "Text")
             SearchBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 120)
             SearchBox.TextSize = 10.5
             SearchBox.Font = Enum.Font.Gotham
@@ -385,9 +453,9 @@ function Library.new(titleText)
 
             local TPBtn = Instance.new("TextButton")
             TPBtn.Size = UDim2.new(1, 0, 0, 34)
-            TPBtn.BackgroundColor3 = Color3.fromRGB(255, 149, 0)
+            bindTheme(TPBtn, "BackgroundColor3", "Warning")
             TPBtn.Text = "Teleport to Player"
-            TPBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            bindTheme(TPBtn, "TextColor3", "AccentText")
             TPBtn.TextSize = 10.5
             TPBtn.Font = Enum.Font.GothamBold
             TPBtn.AutoButtonColor = false
@@ -411,9 +479,9 @@ function Library.new(titleText)
 
             local CopyIDBtn = Instance.new("TextButton")
             CopyIDBtn.Size = UDim2.new(1, 0, 0, 34)
-            CopyIDBtn.BackgroundColor3 = Color3.fromRGB(175, 82, 222)
+            bindTheme(CopyIDBtn, "BackgroundColor3", "Accent")
             CopyIDBtn.Text = "Copy Player User ID"
-            CopyIDBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            bindTheme(CopyIDBtn, "TextColor3", "AccentText")
             CopyIDBtn.TextSize = 10.5
             CopyIDBtn.Font = Enum.Font.GothamBold
             CopyIDBtn.AutoButtonColor = false
@@ -441,7 +509,7 @@ function Library.new(titleText)
             Label.Size = UDim2.new(1, 0, 0, 20)
             Label.BackgroundTransparency = 1
             Label.Text = string.upper(text)
-            Label.TextColor3 = Color3.fromRGB(120, 120, 145)
+            bindTheme(Label, "TextColor3", "MutedText")
             Label.TextSize = 9.5
             Label.Font = Enum.Font.GothamBold
             Label.TextXAlignment = Enum.TextXAlignment.Left
@@ -452,10 +520,10 @@ function Library.new(titleText)
         function tabObj:AddButton(text, callback)
             local Btn = Instance.new("TextButton")
             Btn.Size = UDim2.new(1, 0, 0, 34)
-            Btn.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+            bindTheme(Btn, "BackgroundColor3", "Surface")
             Btn.BackgroundTransparency = 0.25
             Btn.Text = text
-            Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            bindTheme(Btn, "TextColor3", "Text")
             Btn.TextSize = 10.5
             Btn.Font = Enum.Font.GothamMedium
             Btn.AutoButtonColor = false
@@ -471,7 +539,7 @@ function Library.new(titleText)
         function tabObj:AddSlider(text, min, max, default, callback)
             local SliderFrame = Instance.new("Frame")
             SliderFrame.Size = UDim2.new(1, 0, 0, 46)
-            SliderFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+            bindTheme(SliderFrame, "BackgroundColor3", "Surface")
             SliderFrame.BackgroundTransparency = 0.25
             SliderFrame.Parent = Page
 
@@ -484,7 +552,7 @@ function Library.new(titleText)
             Label.Position = UDim2.new(0, 8, 0, 4)
             Label.BackgroundTransparency = 1
             Label.Text = text .. ": " .. tostring(default)
-            Label.TextColor3 = Color3.fromRGB(220, 220, 235)
+            bindTheme(Label, "TextColor3", "Text")
             Label.TextSize = 10.5
             Label.Font = Enum.Font.GothamMedium
             Label.TextXAlignment = Enum.TextXAlignment.Left
@@ -493,7 +561,7 @@ function Library.new(titleText)
             local Bar = Instance.new("TextButton")
             Bar.Size = UDim2.new(1, -16, 0, 5)
             Bar.Position = UDim2.new(0, 8, 0, 30)
-            Bar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+            bindTheme(Bar, "BackgroundColor3", "Track")
             Bar.Text = ""
             Bar.AutoButtonColor = false
             Bar.Parent = SliderFrame
@@ -504,7 +572,7 @@ function Library.new(titleText)
 
             local Fill = Instance.new("Frame")
             Fill.Size = UDim2.new((default - min)/(max - min), 0, 1, 0)
-            Fill.BackgroundColor3 = Color3.fromRGB(0, 122, 255)
+            bindTheme(Fill, "BackgroundColor3", "Accent")
             Fill.BorderSizePixel = 0
             Fill.Parent = Bar
 
@@ -537,11 +605,11 @@ function Library.new(titleText)
         function tabObj:AddTextBox(placeholder, callback)
             local Box = Instance.new("TextBox")
             Box.Size = UDim2.new(1, 0, 0, 34)
-            Box.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+            bindTheme(Box, "BackgroundColor3", "Input")
             Box.BackgroundTransparency = 0.25
             Box.PlaceholderText = placeholder
             Box.Text = ""
-            Box.TextColor3 = Color3.fromRGB(255, 255, 255)
+            bindTheme(Box, "TextColor3", "Text")
             Box.PlaceholderColor3 = Color3.fromRGB(100, 100, 120)
             Box.TextSize = 10.5
             Box.Font = Enum.Font.Gotham

@@ -124,6 +124,28 @@ end)
 
 The first tab is displayed automatically. Additional tabs appear in the top navigation bar, and the player can select them at runtime.
 
+## Theme Customization
+
+Azura Moki includes built-in `Dark` and `Light` themes. Apply a preset after creating the window:
+
+```lua
+Window:SetTheme("Light")
+
+local themeName, palette = Window:GetTheme()
+print("Active theme:", themeName)
+```
+
+You can also provide a partial custom palette. Unspecified tokens keep their current values:
+
+```lua
+Window:SetTheme({
+    Accent = Color3.fromRGB(120, 80, 255),
+    AccentText = Color3.fromRGB(255, 255, 255),
+})
+```
+
+Supported semantic tokens include `Window`, `Surface`, `SurfaceAlt`, `Input`, `Text`, `MutedText`, `Border`, `Accent`, `AccentText`, `Track`, `Destructive`, and `Warning`. Theme changes update the library elements that are bound to these tokens and `SetTheme` returns the window for chaining.
+
 ## Repository
 
 This is the public GitHub repository for the project:
