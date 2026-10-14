@@ -16,23 +16,18 @@ Azura Moki is a professional, lightweight, and modern Luau UI library inspired b
 ## Usage Example
 
 ```lua
--- Load your Azura Moki Library from GitHub
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Nagai0426/azura-moki-ui-library/main/Library.lua"))()
 
--- Initialize Window
 local Window = Library.new("Azura Moki Hub")
 
--- Home / Welcome Tab
 local HomeTab = Window:AddTab("Home")
 HomeTab:AddWelcomeCard()
 HomeTab:AddDashboardStats()
 
--- Scripts / Utilities Tab
 local ScriptsTab = Window:AddTab("Scripts")
 ScriptsTab:AddLabel("Player & Server Tools")
 ScriptsTab:AddUsableScripts()
 
--- Settings Tab
 local SettingsTab = Window:AddTab("Settings")
 SettingsTab:AddLabel("GUI Scale Settings")
 SettingsTab:AddButton("Scale 25% (Small)", function() Window:SetScale(0.25) end)
